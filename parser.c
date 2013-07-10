@@ -10,7 +10,7 @@ static int parse_uleb128(const unsigned char *s, uint32_t *ret){
     for( ; ; i++){
         char byte = s[i];
         *ret |= (byte & 0x7f) << (i * 7);
-        if(byte & 0x80 == 0) break;
+        if((byte & 0x80) == 0) break;
         
         // Prevent overflow
         if(i == 3) return -1;
