@@ -30,7 +30,8 @@ typedef struct {
     uint32_t score;
     uint16_t max_combo;
     bool perfect;
-    MOD mods;
+    uint32_t mods;
+    //MOD mods;
     // TODO
     // HPGRAPH hpgraph;
     struct timeval achieve_time;
