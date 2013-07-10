@@ -33,7 +33,7 @@ osrstats *parse_osr(const unsigned char *s, int len){
 
 
     // mode
-    ret->mode = *(MODE *)p;
+    ret->mode = *p;
     INC(1);
 
     // don't care
@@ -54,6 +54,7 @@ osrstats *parse_osr(const unsigned char *s, int len){
         // FIXME: username len > 128
         uint8_t len = *p;
         if(len >= 128) goto fail;
+        INC(1);
         memcpy(&ret->username, p, len);
         ret->username[len] = 0;
         INC(len);
