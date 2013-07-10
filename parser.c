@@ -1,4 +1,9 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
 
 typedef char MD5[32];
 typedef enum {STD, TAIKO, CTB, MANIA} MODE;
@@ -8,9 +13,8 @@ typedef enum {
     NOVIDEO    = 0x4,
     HIDDEN     = 0x8,
     HARDROCK   = 0x10,
-    ...
+    //...
 } MOD;
-
 
 typedef struct {
     MODE mode;
@@ -29,8 +33,9 @@ typedef struct {
     MOD mods;
     // TODO
     // HPGRAPH hpgraph;
-    time_t time;
+    struct timeval achieve_time;
 } oszstats;
+
 
 
 int parse_uleb128(const char *s, uint32_t *ret){
@@ -38,7 +43,7 @@ int parse_uleb128(const char *s, uint32_t *ret){
     int shift = 0;
     for( ; ; i++){
         char byte = s[i];
-        ret |= (byte & 0x7f) << (i * 7);
+        *ret |= (byte & 0x7f) << (i * 7);
         if(byte & 0x80 == 0) break;
         
         // Prevent overflow
@@ -51,12 +56,12 @@ int parse_uleb128(const char *s, uint32_t *ret){
 oszstats *parse_oszstring(const char *s, int len){
     oszstats *ret = malloc(sizeof(oszstats));
 
-    unsigned char *p = s;
+    unsigned char *p = (unsigned char *)s;
     const void *end = s+len;
 
 #define INC(x) do { \
     p+=x; \
-    if(p >= end) \
+    if((const void*)p >= end) \
         goto fail; \
     } while(0);
 
@@ -77,14 +82,16 @@ oszstats *parse_oszstring(const char *s, int len){
     INC(0x20);
 
     // user name
-    if(*p != 0x0B) goto fail;
-    INC(1);
-    // FIXME: username len > 128
-    uint8_t len = *p;
-    if(len >= 128) goto fail;
-    memcpy(&ret->username, p, len);
-    ret->username[len] = 0;
-    INC(len);
+    {
+        if(*p != 0x0B) goto fail;
+        INC(1);
+        // FIXME: username len > 128
+        uint8_t len = *p;
+        if(len >= 128) goto fail;
+        memcpy(&ret->username, p, len);
+        ret->username[len] = 0;
+        INC(len);
+    }
 
     // replay MD5
     if(*p != 0x0B) goto fail;
@@ -108,18 +115,21 @@ oszstats *parse_oszstring(const char *s, int len){
     ret->mods = *(uint32_t *)p; INC(4); 
 
     // HP Graph
-    if(*p != 0x0B) goto fail;
-    INC(1);
-    uint32_t len;
-    int n = parse_uleb128(p, &len);
-    INC(n);
-    // TODO
-    INC(len);
+    {
+        if(*p != 0x0B) goto fail;
+        INC(1);
+        uint32_t len;
+        int n = parse_uleb128(p, &len);
+        INC(n);
+        // TODO
+        INC(len);
+    }
     
     
     // Datetime
-    uint64_t *rawtime = *(uint64_t *)p;
-    ret->time = *(uint64_t *)p / 10000000  - 62135596800;
+    uint64_t rawtime = *(uint64_t *)p - 621355968000000000;
+    ret->achieve_time.tv_sec = rawtime / 10000000;
+    ret->achieve_time.tv_usec = rawtime % 10000000;
     INC(8)
 
     return ret;
