@@ -2,6 +2,8 @@
 #define __PARSER_H
 
 #include <sys/time.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 typedef char MD5[32];
 typedef enum {STD, TAIKO, CTB, MANIA} MODE;
