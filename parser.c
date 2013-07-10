@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include "parser.h"
 
 static int parse_uleb128(const unsigned char *s, uint32_t *ret){
     int i = 0;
