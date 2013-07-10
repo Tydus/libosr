@@ -5,42 +5,8 @@
 #include <string.h>
 #include <sys/time.h>
 
-typedef char MD5[32];
-typedef enum {STD, TAIKO, CTB, MANIA} MODE;
-typedef enum {
-    NONFAIL    = 0x1,
-    EAZY       = 0x2,
-    NOVIDEO    = 0x4,
-    HIDDEN     = 0x8,
-    HARDROCK   = 0x10,
-    //...
-} MOD;
-
-typedef struct {
-    MODE mode;
-    MD5 md5_map;
-    char username[128];
-    MD5 md5_osr;
-    uint16_t n_300;
-    uint16_t n_100;
-    uint16_t n_50;
-    uint16_t n_geki;
-    uint16_t n_katu;
-    uint16_t n_miss;
-    uint32_t score;
-    uint16_t max_combo;
-    bool perfect;
-    MOD mods;
-    // TODO
-    // HPGRAPH hpgraph;
-    struct timeval achieve_time;
-} oszstats;
-
-
-
-int parse_uleb128(const char *s, uint32_t *ret){
+static int parse_uleb128(const unsigned char *s, uint32_t *ret){
     int i = 0;
-    int shift = 0;
     for( ; ; i++){
         char byte = s[i];
         *ret |= (byte & 0x7f) << (i * 7);
@@ -51,7 +17,6 @@ int parse_uleb128(const char *s, uint32_t *ret){
     }
     return ++i;
 }
-
 
 oszstats *parse_oszstring(const char *s, int len){
     oszstats *ret = malloc(sizeof(oszstats));
