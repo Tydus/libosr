@@ -19,8 +19,8 @@ static int parse_uleb128(const unsigned char *s, uint32_t *ret){
     return ++i;
 }
 
-oszstats *parse_oszstring(const char *s, int len){
-    oszstats *ret = malloc(sizeof(oszstats));
+osrstats *parse_osr(const unsigned char *s, int len){
+    osrstats *ret = malloc(sizeof(osrstats));
 
     unsigned char *p = (unsigned char *)s;
     const void *end = s+len;

@@ -34,8 +34,8 @@ typedef struct {
     // TODO
     // HPGRAPH hpgraph;
     struct timeval achieve_time;
-} oszstats;
+} osrstats;
 
-oszstats *parse_oszstring(const char *s, int len);
+osrstats *parse_osr(const unsigned char *s, int len);
 
 #endif
